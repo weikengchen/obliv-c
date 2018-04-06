@@ -3,6 +3,7 @@ OCCPATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )"/../ && pwd )"
 OCLIB=$OCCPATH/src/ext/oblivc
 COMPILE_ONLY=0
 CCARGS=""
+TMPCCFILES=""
 AFTERARGS=""
 CILLYARGS=""
 OCSRC=()
@@ -34,6 +35,7 @@ while [ $# -ge 1 ]; do
     GCRYPT="/usr/lib/x86_64-linux-gnu/libgcrypt.a -lgpg-error"
   elif [[ "$1" == *oc ]]; then
     OCSRC+=($1)
+    TMPCCFILES+="$1.cil.c "
     CCARGS+="$1.cil.c "
   else
     if [ "$1" = '-L' ]; then
@@ -63,4 +65,5 @@ for src in ${OCSRC[*]}; do
 done
 
 gcc $CCARGS -I $OCLIB -Wno-format-security -Wno-deprecated-declarations -lobliv -O3 -L$OCCPATH/_build $GCRYPT $AFTERARGS -pthread
+rm $TMPCCFILES
 fi
