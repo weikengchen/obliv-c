@@ -409,8 +409,8 @@ class controlCheckVisitor = object(self)
   val gotoOk = ref true
 
   method getRestorer() = 
-    let oldbreak,oldcont,oldret = !breakOk,!contOk,!returnOk in
-    (fun() -> breakOk:=oldbreak; contOk:=oldcont; returnOk:=oldret)
+    let oldbreak,oldcont,oldret,oldgoto = !breakOk,!contOk,!returnOk,!gotoOk in
+    (fun() -> breakOk:=oldbreak; contOk:=oldcont; returnOk:=oldret; gotoOk:=oldgoto)
 
   method vstmt s = let restore = self#getRestorer() in begin
     match s.skind with
