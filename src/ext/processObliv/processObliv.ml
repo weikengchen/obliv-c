@@ -406,6 +406,7 @@ class controlCheckVisitor = object(self)
   val breakOk = ref false
   val contOk = ref false
   val returnOk = ref true
+  val gotoOk = ref true
 
   method getRestorer() = 
     let oldbreak,oldcont,oldret = !breakOk,!contOk,!returnOk in
@@ -414,7 +415,7 @@ class controlCheckVisitor = object(self)
   method vstmt s = let restore = self#getRestorer() in begin
     match s.skind with
     | If(c,tb,fb,loc) -> if isOblivBlock tb then
-          (breakOk:=false; contOk:=false; returnOk:=false)
+          (breakOk:=false; contOk:=false; returnOk:=false; gotoOk:=false)
     | Loop _ -> breakOk:=true; contOk:=true
     | Switch _ -> breakOk:=true
     | TryFinally _ | TryExcept _ -> 
@@ -426,6 +427,8 @@ class controlCheckVisitor = object(self)
                         E.s (E.error "%a: unexpected continue" d_loc loc)
     | Return (_,loc) -> if not !returnOk then
                           E.s (E.error "%a: unexpected return" d_loc loc)
+    | Goto (_,loc) -> if not !gotoOk then
+                          E.s (E.error "%a: unexpected goto" d_loc loc)
     | _ -> (); (* Yeah, I'm not handling Goto *)
     ;
     ChangeDoChildrenPost(s,fun s -> restore(); s)
