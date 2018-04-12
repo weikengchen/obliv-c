@@ -162,9 +162,7 @@ AC_TYPE_INTPTR_T
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS(mkdir select socket __sysv_signal)
 
-AC_CHECK_LIB( [tcmalloc], [malloc], [],[
-[AC_MSG_ERROR([libtcmalloc not found. Please: sudo apt-get install libgoogle-perftools-dev. ])]
-])
+AC_CHECK_LIB( [tcmalloc], [malloc], [], AC_MSG_ERROR([libtcmalloc not found. Please: sudo apt-get install libgoogle-perftools-dev. ]))
 
 # Find out the true definitions of some integer types
 CIL_CHECK_INTEGER_TYPE(size_t, TYPE_SIZE_T)
