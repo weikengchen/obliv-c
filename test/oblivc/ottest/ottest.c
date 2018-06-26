@@ -22,7 +22,10 @@ int main(int argc, char* argv[])
     int n = atoi(argv[5]);
     int len = atoi(argv[6]);
     struct HonestOTExtSender *sender = honestOTExtSenderNew(&pd, 2);
-    honestOTExtSend1Of2(sender, opt0, opt1, n, len);
+
+    for(int i = 0; i < 1000; i++){
+    	honestOTExtSend1Of2(sender, opt0, opt1, n, len);
+    }
     honestOTExtSenderRelease(sender);
   }
   else
@@ -34,7 +37,9 @@ int main(int argc, char* argv[])
     int len = atoi(argv[5]);
     char *output = malloc(n*len);
     struct HonestOTExtRecver *recver = honestOTExtRecverNew(&pd, 1);
-    honestOTExtRecv1Of2(recver, output, sel, n, len);
+    for(int i = 0; i < 1000; i++){
+        honestOTExtRecv1Of2(recver, output, sel, n, len);
+    }
     honestOTExtRecverRelease(recver);
     fprintf(stderr, "%s\n", output);
     free(sel);
