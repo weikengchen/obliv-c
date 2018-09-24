@@ -24,7 +24,8 @@ while [ $# -ge 1 ]; do
 done
 
 set -e
-$OCCPATH/bin/cilly -Wno-format-security -Wno-deprecated-declarations --keepunused --doprocessObliv --markImplicitCasts $OBLIV_BITS -I $OCLIB -L$OCCPATH/_build -lobliv $GCRYPT -pthread $CCARGS -ltcmalloc  
+$OCCPATH/bin/cilly -Wno-format-security -Wno-deprecated-declarations --keepunused --doprocessObliv --markImplicitCasts $OBLIV_BITS -I $OCLIB -L$OCCPATH/_build -lobliv $GCRYPT -pthread $CCARGS 
+#-ltcmalloc  
 
 if false; then
 while [ $# -ge 1 ]; do
@@ -64,6 +65,7 @@ for src in ${OCSRC[*]}; do
   $OCCPATH/bin/cilobliv $src -I $OCLIB $CILLYARGS || exit
 done
 
-gcc $CCARGS -I $OCLIB -Wno-format-security -Wno-deprecated-declarations -lobliv -O3 -L$OCCPATH/_build $GCRYPT $AFTERARGS -pthread -ltcmalloc 
+gcc $CCARGS -I $OCLIB -Wno-format-security -Wno-deprecated-declarations -lobliv -O3 -L$OCCPATH/_build $GCRYPT $AFTERARGS -pthread 
+#-ltcmalloc 
 rm $TMPCCFILES
 fi
