@@ -11,6 +11,8 @@
 #include<obliv_types_internal.h>
 #include<obliv_common.h>
 
+#include "./socktls.h"
+
 #define __bitsize(type) (8*sizeof(type))
 
 // Note: these structs are often freely casted to and from OblivBit* and void*

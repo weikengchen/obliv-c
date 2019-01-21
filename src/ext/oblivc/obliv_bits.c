@@ -240,7 +240,7 @@ static int getsockaddr(const char* name,const char* port, struct sockaddr* res)
 static int tcpConnect(struct sockaddr_in* sa)
 {
   int outsock;
-  if((outsock=socket(AF_INET,SOCK_STREAM,0))<0) return -1;
+  if((outsock=socket(PF_INET,SOCK_STREAM,IPPROTO_TLS))<0) return -1;
   if(connect(outsock,(struct sockaddr*)sa,sizeof(*sa))<0) return -1;
   return outsock;
 }
@@ -269,7 +269,7 @@ static int tcpListenAny(const char* portn)
   in_port_t port;
   int outsock;
   if(sscanf(portn,"%hu",&port)<1) return -1;
-  if((outsock=socket(AF_INET,SOCK_STREAM,0))<0) return -1;
+  if((outsock=socket(PF_INET,SOCK_STREAM,IPPROTO_TLS))<0) return -1;
   int reuse = 1;
   if (setsockopt(outsock, SOL_SOCKET, SO_REUSEADDR, (const char*)&reuse, sizeof(reuse)) < 0)
   { fprintf(stderr,"setsockopt(SO_REUSEADDR) failed\n"); return -1; }
@@ -277,6 +277,15 @@ static int tcpListenAny(const char* portn)
   struct sockaddr_in sa = { .sin_family=AF_INET, .sin_port=htons(port)
                           , .sin_addr={INADDR_ANY} };
   if(bind(outsock,(struct sockaddr*)&sa,sizeof(sa))<0) return -1;
+
+  if (setsockopt(outsock, IPPROTO_TLS, TLS_CERTIFICATE_CHAIN, "/home/ubuntu/.ssh/certificate.pem", sizeof("/home/ubuntu/.ssh/certificate.pem")) == -1) {
+	perror("certificate load failed.\n");
+  } 
+
+  if (setsockopt(outsock, IPPROTO_TLS, TLS_PRIVATE_KEY, "/home/ubuntu/.ssh/key.pem", sizeof("/home/ubuntu/.ssh/key.pem")) == -1) {
+	perror("key load failed.\n");
+  }
+
   if(listen(outsock,SOMAXCONN)<0) return -1;
   return outsock;
 }
