@@ -1219,11 +1219,15 @@ senderExtensionBoxSendMsgs(SendMsgArgs* a)
 static void* recverExtensionBoxRecvMsgs_thread(void* va)
 { RecvMsgArgs* a=va;
   int i;
+
   recvBufInit(a);
+
   for(i=0;i<a->n;++i)
-  { recverExtensionBoxRecvMsg(a);
+  {
+	 recverExtensionBoxRecvMsg(a);
     a->msg+=a->len; a->c++;
   }
+
   recvBufRelease(a);
   return NULL;
 }
@@ -1237,6 +1241,7 @@ recverExtensionBoxRecvMsgs(RecvMsgArgs* a)
     pthread_t th[OT_THREAD_COUNT];
     RecvMsgArgs ri[OT_THREAD_COUNT];
     int i,ndone=0,tc=OT_THREAD_COUNT;
+    
     for(i=0;i<tc;++i)
     { ri[i]=*a;
       ri[i].c=ndone;
@@ -1249,8 +1254,10 @@ recverExtensionBoxRecvMsgs(RecvMsgArgs* a)
       ndone+=ri[i].n;
     }
     assert(ndone==a->n);
+
     for(i=0;i<tc;++i)
-    { pthread_join(th[i],NULL);
+    { 
+	    pthread_join(th[i],NULL);
       ri[i].trans->cleanup(ri[i].trans);
       releaseBCipherRandomGen(ri[i].cipher);
     }

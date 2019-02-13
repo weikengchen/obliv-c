@@ -9,6 +9,9 @@
 #include <inttypes.h>
 #include <stdio.h>      // for protoUseStdio()
 #include <string.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <netinet/ip.h>
 #include <netinet/tcp.h>
 #include <netdb.h>
@@ -144,7 +147,8 @@ static int tcp2PFlushProfiled(ProtocolTransport* pt)
 
 static void tcp2PCleanup(ProtocolTransport* pt)
 { 
-  tcp2PTransport* t = CAST(pt);
+  	fprintf(stderr, "cleanup run.\n");
+	tcp2PTransport* t = CAST(pt);
   fflush(t->sockStream);
   if(!t->keepAlive) fclose(t->sockStream);
   free(pt);
@@ -240,6 +244,7 @@ static int getsockaddr(const char* name,const char* port, struct sockaddr* res)
 static int tcpConnect(struct sockaddr_in* sa)
 {
   int outsock;
+  sa->sin_family = AF_INET;
   if((outsock=socket(PF_INET,SOCK_STREAM,IPPROTO_TLS))<0) return -1;
   if(connect(outsock,(struct sockaddr*)sa,sizeof(*sa))<0) return -1;
   return outsock;
@@ -326,12 +331,20 @@ static int sockSplit(int sock,ProtocolTransport* t,bool isClient)
   struct sockaddr_in sa; socklen_t sz=sizeof(sa);
   if(isClient)
   {
-    if(getpeername(sock,(struct sockaddr*)&sa,&sz)<0) return -1;
+	  fprintf(stderr, "first line\n");
+    if(getsockaddr("13.57.76.152","1234",(struct sockaddr*)&sa)<0) return -1;
+    //if(getpeername(sock,(struct sockaddr*)&sa,&sz)<0) return -1;
     //int rres=read(sock,&sa.sin_port,sizeof(sa.sin_port));
+          fprintf(stderr, "second line\n");
     int rres = transRecv(t,0,&sa.sin_port,sizeof(sa.sin_port));
+          fprintf(stderr, "third line\n");
     if(rres<0) { fprintf(stderr,"Socket read error\n"); return -1; }
+    fprintf(stderr, "fourth line\n");
+    
     if(rres<sizeof(sa.sin_port))
       { fprintf(stderr,"BUG: fix with repeated reads\n"); return -1; }
+
+    sleep(1);
     return tcpConnect(&sa);
   }
   else
@@ -1107,6 +1120,8 @@ void mainYaoProtocol(ProtocolDesc* pd, bool point_and_permute,
   int me = pd->thisParty;
   ypd->ownOT=false;
   ypd->gcount = ypd->gcount_offset = ypd->icount = ypd->ocount = 0;
+
+  fprintf(stderr, "before the OT stage.\n");
   if(me==1)
   {
     gcry_randomize(ypd->R,YAO_KEY_BYTES,GCRY_STRONG_RANDOM);
@@ -1123,7 +1138,11 @@ void mainYaoProtocol(ProtocolDesc* pd, bool point_and_permute,
       ypd->recver = honestOTExtRecverAbstract(honestOTExtRecverNew(pd,1));
     }
 
+  fprintf(stderr, "after the OT stage.\n");
+
   currentProto = pd;
+
+  fprintf(stderr, "now start the protocol.\n");
   start(arg);
 }
 
@@ -1138,8 +1157,11 @@ void cleanupYaoProtocol(ProtocolDesc* pd)
 
 void execYaoProtocol(ProtocolDesc* pd, protocol_run start, void* arg)
 {
+  fprintf(stderr, "setup\n");
   setupYaoProtocol(pd,true);
+  fprintf(stderr, "after setup\n");
   mainYaoProtocol(pd,true,start,arg);
+  fprintf(stderr, "after main\n");
   cleanupYaoProtocol(pd);
 }
 
