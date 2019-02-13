@@ -1064,6 +1064,7 @@ typedef struct
 static void sendBufFlush(SendMsgArgs* a)
 {
   transSend(a->trans,a->destParty,a->buf,a->bufused);
+  transFlush(a->trans);
   a->bufused=0;
 }
 
@@ -1072,6 +1073,7 @@ static void sendBufSend(SendMsgArgs* a,const char* data)
   if(a->bufused>=a->len*MSGBUFFER_SIZE) sendBufFlush(a);
   memcpy(a->buf+a->bufused,data,a->len);
   a->bufused+=a->len;
+  sendBufFlush(a);
 }
 static void sendBufInit(SendMsgArgs* a)
 {
@@ -1176,12 +1178,16 @@ recverExtensionBoxRecvMsg(RecvMsgArgs* a)
 static void* senderExtensionBoxSendMsgs_thread(void* va)
 { SendMsgArgs* a=va;
   int i;
+  fprintf(stderr, "init send buf\n");
   sendBufInit(a);
+  fprintf(stderr, "start to send\n");
   for(i=0;i<a->n;++i)
   { senderExtensionBoxSendMsg(a);
     a->opt0+=a->len; a->opt1+=a->len; a->c++;
   }
+  fprintf(stderr, "finish sending\n");
   sendBufRelease(a);
+  fprintf(stderr, "release\n");
   return NULL;
 }
 void
@@ -1211,6 +1217,7 @@ senderExtensionBoxSendMsgs(SendMsgArgs* a)
     { pthread_join(th[i],NULL);
       si[i].trans->cleanup(si[i].trans);
       releaseBCipherRandomGen(si[i].cipher);
+   	fprintf(stderr, "send done %d\n", i);
     }
     a->nonce+=ndone*a->nonceDelta;
   }
