@@ -23,6 +23,8 @@
 // Right now, we do not support multiple protocols at the same time
 static __thread ProtocolDesc *currentProto;
 
+int lastport = 19000;
+
 static inline bool known(const OblivBit* o) { return !o->unknown; }
 
 // --------------------------- STDIO trans -----------------------------------
@@ -336,9 +338,13 @@ static int sockSplit(int sock,ProtocolTransport* t,bool isClient)
   }
   else
   { // any change here should also change PROFILE_NETWORK in tcp2PSplit()
-    int listenSock=tcpListenAny("0");
-    if(getsockname(listenSock,(struct sockaddr*)&sa,&sz)<0) return -1;
-    //if(write(sock,&sa.sin_port,sizeof(sa.sin_port))<0) return -1;
+    
+	  char lastport_str[256]; sprintf(lastport_str, "%d", lastport);
+	  
+	  int listenSock=tcpListenAny(lastport_str);
+    //if(getsockname(listenSock,(struct sockaddr*)&sa,&sz)<0) return -1;
+    sa.sin_port = htons(lastport);
+    lastport++;
     if(transSend(t,0,&sa.sin_port,sizeof(sa.sin_port))<0) return -1;
     transFlush(t);
     int newsock = accept(listenSock,0,0);
