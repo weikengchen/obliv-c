@@ -1178,16 +1178,12 @@ recverExtensionBoxRecvMsg(RecvMsgArgs* a)
 static void* senderExtensionBoxSendMsgs_thread(void* va)
 { SendMsgArgs* a=va;
   int i;
-  fprintf(stderr, "init send buf\n");
   sendBufInit(a);
-  fprintf(stderr, "start to send\n");
   for(i=0;i<a->n;++i)
   { senderExtensionBoxSendMsg(a);
     a->opt0+=a->len; a->opt1+=a->len; a->c++;
   }
-  fprintf(stderr, "finish sending\n");
   sendBufRelease(a);
-  fprintf(stderr, "release\n");
   return NULL;
 }
 void
@@ -1217,7 +1213,6 @@ senderExtensionBoxSendMsgs(SendMsgArgs* a)
     { pthread_join(th[i],NULL);
       si[i].trans->cleanup(si[i].trans);
       releaseBCipherRandomGen(si[i].cipher);
-   	fprintf(stderr, "send done %d\n", i);
     }
     a->nonce+=ndone*a->nonceDelta;
   }
