@@ -247,8 +247,16 @@ static int tcpConnect(struct sockaddr_in* sa)
 {
   int outsock;
   sa->sin_family = AF_INET;
+  
+   fprintf(stderr, "add the link\n");
+
   if((outsock=socket(PF_INET,SOCK_STREAM,IPPROTO_TLS))<0) return -1;
+
+   fprintf(stderr, "make the connection\n");
+
   if(connect(outsock,(struct sockaddr*)sa,sizeof(*sa))<0) return -1;
+
+   fprintf(stderr, "connected\n");
   return outsock;
 }
 
