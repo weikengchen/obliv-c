@@ -333,15 +333,15 @@ static int sockSplit(int sock,ProtocolTransport* t,bool isClient)
   struct sockaddr_in sa; socklen_t sz=sizeof(sa);
   if(isClient)
   {
-//	  fprintf(stderr, "first line\n");
+	  fprintf(stderr, "first line\n");
     if(getsockaddr("13.57.76.152","1234",(struct sockaddr*)&sa)<0) return -1;
     //if(getpeername(sock,(struct sockaddr*)&sa,&sz)<0) return -1;
     //int rres=read(sock,&sa.sin_port,sizeof(sa.sin_port));
-//          fprintf(stderr, "second line\n");
+          fprintf(stderr, "second line\n");
     int rres = transRecv(t,0,&sa.sin_port,sizeof(sa.sin_port));
-//          fprintf(stderr, "third line\n");
+          fprintf(stderr, "third line\n");
     if(rres<0) { fprintf(stderr,"Socket read error\n"); return -1; }
-//    fprintf(stderr, "fourth line\n");
+    fprintf(stderr, "fourth line\n");
     
     if(rres<sizeof(sa.sin_port))
       { fprintf(stderr,"BUG: fix with repeated reads\n"); return -1; }
